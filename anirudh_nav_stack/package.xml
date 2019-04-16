@@ -1,0 +1,28 @@
+<package>
+    <name>anirudh_nav_stack</name>
+    <version>1.14.4</version>
+    <description>
+
+        This package provides common interfaces for navigation specific robot actions. Currently, this package provides.....
+
+    </description>
+    <author>AnirudhYadav</author>
+    <author>anirudhyadav1001@gmail.com</author>
+    <maintainer email="anirudhyadav1001@gmail.com">Anirudh Yadav</maintainer>
+    <license>BSD</license>
+    <url>http://dadadda</url>
+
+    <buildtool_depend>catkin</buildtool_depend>
+
+    <build_depend>std_msgs</build_depend>
+    <build_depend>geometry_msgs</build_depend>
+    <build_depend>costmap_2d</build_depend>
+    <build_depend>tf</build_depend>
+
+    <run_depend>std_msgs</run_depend>
+    <run_depend>geometry_msgs</run_depend>
+    <run_depend>costmap_2d</run_depend>
+    <run_depend>tf</run_depend>
+</package>
+
+
