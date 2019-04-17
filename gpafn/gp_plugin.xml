@@ -1,0 +1,7 @@
+<library path="lib/libgpafn">
+  <class name="GpaFN/GPAFNROS" type="GpaFN::GPAFNROS" base_class_type="anirudh_nav_stack::GlobalPlanner">
+    <description>
+      A implementation of a grid based planner using Dijkstra
+    </description>
+  </class>
+</library>

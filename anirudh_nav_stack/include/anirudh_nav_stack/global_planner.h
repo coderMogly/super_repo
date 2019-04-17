@@ -7,12 +7,11 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <costmap_2d/costmap_2d_ros.h>
 
-namespace anirudh_nav_stack
+namespace anirudh_nav_stack{
   class GlobalPlanner{
     public:
       virtual bool makePlan(const geometry_msgs::PoseStamped& start, 
-                            const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan,
-                            double& cost) = 0;
+                            const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan) = 0;
 
       virtual void initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros) = 0;
 
