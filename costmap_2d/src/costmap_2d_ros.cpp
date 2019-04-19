@@ -558,6 +558,48 @@ bool Costmap2DROS::getRobotPose(tf::Stamped<tf::Pose>& global_pose) const
   return true;
 }
 
+bool Costmap2DROS::getRobotPose(geometry_msgs::PoseStamped& global_pose) const
+{
+  tf2::toMsg(tf2::Transform::getIdentity(), global_pose.pose);
+  geometry_msgs::PoseStamped robot_pose;
+  tf2::toMsg(tf2::Transform::getIdentity(), robot_pose.pose);
+  robot_pose.header.frame_id = robot_base_frame_;
+  robot_pose.header.stamp = ros::Time();
+  ros::Time current_time = ros::Time::now();  // save time for checking tf delay later
+
+  // get the global pose of the robot
+  try
+  {
+    tf_.transformPose(global_frame_, robot_pose, global_pose);
+  }
+  catch (tf2::LookupException& ex)
+  {
+    ROS_ERROR_THROTTLE(1.0, "No Transform available Error looking up robot pose: %s\n", ex.what());
+    return false;
+  }
+  catch (tf2::ConnectivityException& ex)
+  {
+    ROS_ERROR_THROTTLE(1.0, "Connectivity Error looking up robot pose: %s\n", ex.what());
+    return false;
+  }
+  catch (tf2::ExtrapolationException& ex)
+  {
+    ROS_ERROR_THROTTLE(1.0, "Extrapolation Error looking up robot pose: %s\n", ex.what());
+    return false;
+  }
+  // check global_pose timeout
+  if (current_time.toSec() - global_pose.header.stamp.toSec() > transform_tolerance_)
+  {
+    ROS_WARN_THROTTLE(1.0,
+                      "Costmap2DROS transform timeout. Current time: %.4f, global_pose stamp: %.4f, tolerance: %.4f",
+                      current_time.toSec(), global_pose.header.stamp.toSec(), transform_tolerance_);
+    return false;
+  }
+
+  return true;
+}
+
+
 void Costmap2DROS::getOrientedFootprint(std::vector<geometry_msgs::Point>& oriented_footprint) const
 {
   tf::Stamped<tf::Pose> global_pose;

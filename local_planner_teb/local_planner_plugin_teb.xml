@@ -1,0 +1,9 @@
+<library path="lib/liblocal_planner_teb">
+	<class name="local_planner_teb/LocalPlannerTEB" type="local_planner_teb::LocalPlannerTEB" base_class_type="anirudh_nav_stack::LocalPlanner">
+		<description>
+			The teb_local_planner package implements a plugin
+			to the base_local_planner of the 2D navigation stack.
+		</description>
+	</class>
+</library>
+

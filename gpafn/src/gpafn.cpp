@@ -165,6 +165,7 @@ namespace GpaFN {
       ny = ys;
       ns = nx*ny;
 
+
       if(costarr)
         delete[] costarr;
       if(potarr)
@@ -191,65 +192,36 @@ namespace GpaFN {
   // set up cost array, usually from ROS
   //
 
-  void GPAFN::setCostmap(const COSTTYPE *cmap, bool isROS, bool allow_unknown)
+  void GPAFN::setCostmap(const COSTTYPE *cmap, bool allow_unknown)
     {
       COSTTYPE *cm = costarr;
-      if (isROS)			// ROS-type cost array
+      			// ROS-type cost array
+      for (int i=0; i<ny; i++)
       {
-        for (int i=0; i<ny; i++)
+        int k=i*nx;
+        for (int j=0; j<nx; j++, k++, cmap++, cm++)
         {
-          int k=i*nx;
-          for (int j=0; j<nx; j++, k++, cmap++, cm++)
+          // This transforms the incoming cost values:
+          // COST_OBS                 -> COST_OBS (incoming "lethal obstacle")
+          // COST_OBS_ROS             -> COST_OBS (incoming "inscribed inflated obstacle")
+          // values in range 0 to 252 -> values from COST_NEUTRAL to COST_OBS_ROS.
+          *cm = COST_OBS;
+          int v = *cmap;
+          if (v < COST_OBS_ROS)
           {
-            // This transforms the incoming cost values:
-            // COST_OBS                 -> COST_OBS (incoming "lethal obstacle")
-            // COST_OBS_ROS             -> COST_OBS (incoming "inscribed inflated obstacle")
-            // values in range 0 to 252 -> values from COST_NEUTRAL to COST_OBS_ROS.
-            *cm = COST_OBS;
-            int v = *cmap;
-            if (v < COST_OBS_ROS)
-            {
-              v = COST_NEUTRAL+COST_FACTOR*v;
-              if (v >= COST_OBS)
-                v = COST_OBS-1;
-              *cm = v;
-            }
-            else if(v == COST_UNKNOWN_ROS && allow_unknown)
-            {
+            v = COST_NEUTRAL+COST_FACTOR*v;
+            if (v >= COST_OBS)
               v = COST_OBS-1;
-              *cm = v;
-            }
+            *cm = v;
+          }
+          else if(v == COST_UNKNOWN_ROS && allow_unknown)
+          {
+            v = COST_OBS-1;
+            *cm = v;
           }
         }
       }
-
-      else				// not a ROS map, just a PGM
-      {
-        for (int i=0; i<ny; i++)
-        {
-          int k=i*nx;
-          for (int j=0; j<nx; j++, k++, cmap++, cm++)
-          {
-            *cm = COST_OBS;
-            if (i<7 || i > ny-8 || j<7 || j > nx-8)
-              continue;	// don't do borders
-            int v = *cmap;
-            if (v < COST_OBS_ROS)
-            {
-              v = COST_NEUTRAL+COST_FACTOR*v;
-              if (v >= COST_OBS)
-                v = COST_OBS-1;
-              *cm = v;
-            }
-            else if(v == COST_UNKNOWN_ROS)
-            {
-              v = COST_OBS-1;
-              *cm = v;
-            }
-          }
-        }
-
-      }
+      
     }
 
   bool GPAFN::calcGPAFNDijkstra(bool atStart)

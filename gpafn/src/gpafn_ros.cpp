@@ -109,7 +109,7 @@ namespace GpaFN {
 
     //make sure to resize the underlying array that Navfn uses
     planner_->setGpaArr(costmap_->getSizeInCellsX(), costmap_->getSizeInCellsY());
-    planner_->setCostmap(costmap_->getCharMap(), true, allow_unknown_);
+    planner_->setCostmap(costmap_->getCharMap(), allow_unknown_);
 
     unsigned int mx, my;
     if(!costmap_->worldToMap(world_point.x, world_point.y, mx, my))
@@ -153,8 +153,7 @@ namespace GpaFN {
     wy = costmap_->getOriginY() + my * costmap_->getResolution();
   }
 
-  bool GPAFNROS::makePlan(const geometry_msgs::PoseStamped& start, 
-      const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
+  bool GPAFNROS::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan){
     boost::mutex::scoped_lock lock(mutex_);
     if(!initialized_){
       ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
@@ -168,16 +167,15 @@ namespace GpaFN {
 
     ros::NodeHandle n;
 
-    //until tf can handle transforming things that are way in the past... we'll require the goal to be in our global frame
+    //we need the goal and start to be in the global frame
+    //IMPROVEMENT: Use tf to transform the start and goal into global frame
     if(tf::resolve(tf_prefix_, goal.header.frame_id) != tf::resolve(tf_prefix_, global_frame_)){
-      ROS_ERROR("The goal pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", 
-                tf::resolve(tf_prefix_, global_frame_).c_str(), tf::resolve(tf_prefix_, goal.header.frame_id).c_str());
+      ROS_ERROR("The goal pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", tf::resolve(tf_prefix_, global_frame_).c_str(), tf::resolve(tf_prefix_, goal.header.frame_id).c_str());
       return false;
     }
 
     if(tf::resolve(tf_prefix_, start.header.frame_id) != tf::resolve(tf_prefix_, global_frame_)){
-      ROS_ERROR("The start pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", 
-                tf::resolve(tf_prefix_, global_frame_).c_str(), tf::resolve(tf_prefix_, start.header.frame_id).c_str());
+      ROS_ERROR("The start pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", tf::resolve(tf_prefix_, global_frame_).c_str(), tf::resolve(tf_prefix_, start.header.frame_id).c_str());
       return false;
     }
 
@@ -206,7 +204,7 @@ namespace GpaFN {
 
     //make sure to resize the underlying array that Navfn uses
     planner_->setGpaArr(costmap_->getSizeInCellsX(), costmap_->getSizeInCellsY());
-    planner_->setCostmap(costmap_->getCharMap(), true, allow_unknown_);
+    planner_->setCostmap(costmap_->getCharMap(), allow_unknown_);
 
 #if 0
     {
